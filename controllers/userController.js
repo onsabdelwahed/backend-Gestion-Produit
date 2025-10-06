@@ -4,19 +4,28 @@ const User = require("../models/User");
 // Ajouter un utilisateur (admin uniquement)
 exports.ajouterUtilisateur = async (req, res) => {
   try {
-    const nouvelUser = new User(req.body);
-    await nouvelUser.save();
-    res.status(201).json(nouvelUser);
-  } catch (err) {
-    res.status(400).json({ message: "Erreur d’ajout", error: err.message });
-  }
+    const { nom, email, motdepasse, role  } = req.body;
+  
+    const user = new User({
+      nom,
+      email,
+      motdepasse,
+      role,
+      image: req.file ? `/uploads/${req.file.filename}` : null,
+    });
+  
+    await user.save();
+    res.status(201).json(user);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }  
 };
 
 // Récupérer tous les utilisateurs (optionnel: pagination / filtre)
 exports.listerUtilisateurs = async (req, res) => {
   try {
     // Exemples de query params: ?page=1&limit=20&search=ons
-    const { page = 1, limit = 50, search } = req.query;
+    const { page = 1, limit = 5, search } = req.query;
     const query = {};
 
     if (search) {

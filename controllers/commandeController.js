@@ -1,48 +1,72 @@
 // controllers/commandeController.js
-const commande = require("../models/commande");
-const Commande = require("../models/commande");
-const Product = require('../models/product');
+const Commande = require("../models/commande"); // modèle Commande (Mongoose)
+const Product = require("../models/product");
 
-// Passer une commande 
+// Créer / Passer une commande
 exports.passerCommande = async (req, res) => {
   try {
     const nouvelCommande = new Commande(req.body);
     await nouvelCommande.save();
-    res.status(201).json(nouvelCommande);
+    return res.status(201).json(nouvelCommande);
   } catch (err) {
-    res.status(400).json({ message: "Erreur d’ajout", error: err.message });
+    return res.status(400).json({ message: "Erreur d’ajout", error: err.message });
   }
 };
 
-// Récupérer tous les Commande
+// Récupérer toutes les commandes
 exports.listerCommande = async (req, res) => {
   try {
     const commandes = await Commande.find();
-    res.json(commandes);
+    return res.json(commandes);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: err.message });
   }
 };
 
-
-//supprimer une commande
+// Supprimer une commande (DELETE)
 exports.deleteOrder = async (req, res) => {
   try {
-    await Order.findByIdAndDelete(req.params.id);
-    res.json({ message: 'Commande supprimée' });
+    const deleted = await Commande.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ message: "Commande introuvable" });
+    return res.json({ message: "Commande supprimée", id: req.params.id });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: err.message });
   }
 };
-//modifier commande 
+
+// Modifier une commande (PUT — remplacement complet)
+exports.updateCommande = async (req, res) => {
+  try {
+    // ici on attend un objet complet de commande dans req.body
+    const updated = await Commande.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true, overwrite: true } // overwrite true = remplacer
+    );
+    if (!updated) return res.status(404).json({ message: "Commande introuvable" });
+    return res.json(updated);
+  } catch (err) {
+    return res.status(400).json({ error: err.message });
+  }
+};
+
+// Mettre à jour partiellement le statut (PATCH — modification partielle)
 exports.updateCommandeStatus = async (req, res) => {
   try {
     const { statut } = req.body;
-    const commande = await commande.findByIdAndUpdate(req.params.id, {statut}, {new: true, runValidators: true});
-    if (!commande) return res.status(404).json({ message: "commande introuvable"});
-    res.json(commande);
-  }catch (err) {
-    res.status(400).json({error: err.message});
+    if (typeof statut === "undefined") {
+      return res.status(400).json({ message: "Champ 'statut' requis pour ce endpoint." });
+    }
+
+    const updated = await Commande.findByIdAndUpdate(
+      req.params.id,
+      { $set: { statut } },
+      { new: true, runValidators: true }
+    );
+
+    if (!updated) return res.status(404).json({ message: "Commande introuvable" });
+    return res.json(updated);
+  } catch (err) {
+    return res.status(400).json({ error: err.message });
   }
 };
-
