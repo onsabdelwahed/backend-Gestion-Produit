@@ -1,7 +1,6 @@
 // controllers/commandeController.js
-const commande = require("../models/commande");
-const Commande = require("../models/commande");
-const Product = require('../models/product');
+const Commande = require("../models/Commande"); // modèle Commande (Mongoose)
+const Product = require("../models/Product");
 
 // Passer une commande 
 exports.passerCommande = async (req, res) => {

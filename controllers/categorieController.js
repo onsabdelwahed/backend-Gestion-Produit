@@ -1,14 +1,21 @@
-const categorie = require("../models/categorie");
+const Categorie = require("../models/Categorie");
 //ajouter une categorie  
 exports.createCategorie = async (req, res) => {
     try {
-        const nouvelCategorie = new categorie(req.body);
-        await nouvelCategorie.save();
-        res.status(201).json(nouvelCategorie);
-    }catch(err)
-{
-        res.status(400).json({ message:"Erreur de création", error:err.message });
-    }
+        const { nom , ref , description } = req.body;
+        const categorie = new Categorie({
+            nom, 
+            ref, 
+            description,
+            imageCategorie : req.file ? `/uploads/${req.file.filename}` : null,
+
+        });
+        await categorie.save();
+        res.status(201).json(categorie);
+    }catch (error) {
+        res.status(400).json({ message: error.message });
+
+    }      
 };
 //Afficher tous les catégorie
 exports.listerCategorie = async (req, res) => {
