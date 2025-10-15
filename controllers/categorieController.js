@@ -27,9 +27,9 @@ exports.listerCategorie = async (req, res) => {
     }
 };
 //get categorie by id
-exports.getCtaegorieById = async ( req, res) => {
+exports.getCategorieById = async ( req, res) => {
     try{
-        const cat = await this.getCtaegorieById.findById(req.params.id);
+        const cat = await categorie.findById(req.params.id);
         if(!cat) return  res.status(404).json({ message:"catégorie introuvable"});
         res.json(cat);
     } catch (err) {
